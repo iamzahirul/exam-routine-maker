@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>পরীক্ষার রুটিন মেকার · বানান, প্রিন্ট করুন, শেয়ার করুন</title>
+<meta name="description" content="মিনিটেই পরীক্ষার রুটিন বানান — বিষয়, তারিখ, সময় দিন; সুন্দর টেবিল পাবেন, প্রিন্ট করুন বা টেক্সট কপি করে শেয়ার করুন। অফলাইন।">
+<style>
+  :root{
+    --bg:#050812;--card:#0c1220;--card-border:#1c2740;--text:#e8edf8;
+    --muted:#8b98b8;--green:#00a676;--green-2:#00c98f;--red:#ff6b6b;
+    --gold:#f5c04a;--blue:#5aa7ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:radial-gradient(1100px 500px at 50% -10%,#0d1f1a 0%,var(--bg) 55%);
+    color:var(--text);min-height:100vh;
+    font-family:'Noto Sans Bengali','Hind Siliguri','SolaimanLipi',system-ui,sans-serif;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:26px 16px 60px}
+  header{text-align:center;margin-bottom:22px}
+  .badge{
+    display:inline-block;font-size:12.5px;color:var(--green-2);
+    border:1px solid rgba(0,166,118,.4);border-radius:999px;padding:4px 14px;margin-bottom:10px;
+    background:rgba(0,166,118,.08);letter-spacing:.3px;
+  }
+  h1{font-size:clamp(25px,5vw,36px);font-weight:800}
+  .sub{color:var(--muted);font-size:14px;margin-top:6px;line-height:1.7}
+  .card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+  .card-title{font-size:15.5px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .row-label{font-size:12.5px;color:var(--muted);margin-bottom:4px;display:block}
+  input,select{
+    background:#080d18;color:var(--text);border:1px solid var(--card-border);border-radius:10px;
+    padding:9px 12px;font-family:inherit;font-size:14px;outline:none;transition:border-color .15s;width:100%;
+  }
+  input:focus{border-color:var(--green)}
+  input[type="date"],input[type="time"]{color-scheme:dark}
+  .name-row{margin-bottom:14px}
+  .rows{display:flex;flex-direction:column;gap:9px}
+  .erow{display:grid;grid-template-columns:2fr 1.2fr 1fr 1.2fr 40px;gap:8px;align-items:end}
+  @media(max-width:640px){.erow{grid-template-columns:1fr 1fr;gap:7px}.erow .del{grid-column:2}}
+  .del{
+    background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.35);color:var(--red);
+    border-radius:10px;height:40px;font-size:16px;cursor:pointer;transition:all .15s;
+  }
+  .del:hover{background:rgba(255,107,107,.22)}
+  .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  .btn{
+    font-family:inherit;font-size:13.5px;padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .15s;
+    border:1px solid;
+  }
+  .btn.ghost{color:var(--muted);background:#080d18;border-color:var(--card-border)}
+  .btn.ghost:hover{color:var(--green-2);border-color:var(--green)}
+  .btn.primary{color:#04120d;background:var(--green-2);border-color:var(--green-2);font-weight:700}
+  .btn.gold{color:#241a02;background:var(--gold);border-color:var(--gold);font-weight:700}
+  .btn.red{color:var(--red);background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.35)}
+
+  .today-banner{
+    background:rgba(245,192,74,.08);border:1px solid rgba(245,192,74,.3);border-radius:13px;
+    padding:12px 16px;margin-bottom:14px;font-size:14.5px;line-height:1.7;display:none;
+  }
+  .today-banner.show{display:block}
+  .today-banner b{color:var(--gold)}
+
+  table{width:100%;border-collapse:collapse}
+  th{font-size:12.5px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--card-border);font-weight:600}
+  td{padding:11px 10px;border-bottom:1px solid #141d33;font-size:14.5px;vertical-align:middle}
+  tr.t-row td{background:rgba(245,192,74,.07)}
+  tr.past{opacity:.45}
+  .subj{font-weight:700;font-size:15.5px}
+  .chip{font-size:11.5px;border-radius:999px;padding:2.5px 10px;border:1px solid;white-space:nowrap}
+  .chip.today{color:#241a02;background:var(--gold);border-color:var(--gold);font-weight:700}
+  .chip.soon{color:var(--gold);border-color:rgba(245,192,74,.4);background:rgba(245,192,74,.08)}
+  .chip.over{color:var(--muted);border-color:var(--card-border);background:#080d18}
+  .empty{text-align:center;color:var(--muted);padding:36px 10px;font-size:14.5px;line-height:2}
+
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:28px;line-height:1.9}
+  footer a{color:var(--green-2);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--green-2);color:#04120d;
+    font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;
+  }
+  .toast.show{opacity:1}
+
+  /* ---------- প্রিন্ট স্টাইল ---------- */
+  @media print{
+    body{background:#fff;color:#000}
+    header .badge,.sub,.card.editor,.actions,.no-print,footer,.toast,.today-banner{display:none!important}
+    .wrap{max-width:100%;padding:0}
+    .card.print-area{border:0;padding:0;background:#fff}
+    h1{color:#000;font-size:22px}
+    .print-head{display:block;text-align:center;margin-bottom:16px}
+    table{border:1px solid #333}
+    th,td{border:1px solid #555;color:#000;padding:8px 10px}
+    th{background:#eee;color:#222}
+    tr.past{opacity:1}
+    tr.t-row td{background:#fff8e0}
+    .chip{display:none}
+    .subj{color:#000}
+    .print-meta{font-size:12px;color:#444;text-align:right;margin-top:10px}
+  }
+  .print-head{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="no-print">
+    <span class="badge">Day 8 of 100 · সম্পূর্ণ অফলাইন · প্রিন্ট-রেডি</span>
+    <h1>📝 পরীক্ষার রুটিন মেকার</h1>
+    <p class="sub">বিষয়, তারিখ আর সময় দিন — সুন্দর রুটিন পাবেন। প্রিন্ট করুন, বা টেক্সট কপি করে হোয়াটসঅ্যাপে শেয়ার করুন।</p>
+  </header>
+
+  <div class="card editor">
+    <div class="card-title">
+      <span>✍️ রুটিন তৈরি করুন</span>
+      <span style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="loadExample()">📄 উদাহরণ দেখুন</button>
+        <button class="btn red" onclick="clearAll()">🗑 সব মুছুন</button>
+      </span>
+    </div>
+    <div class="name-row">
+      <label class="row-label">রুটিনের নাম</label>
+      <input id="rname" type="text" placeholder="যেমন: এসএসসি পরীক্ষা ২০২৭" oninput="save();render()">
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="actions">
+      <button class="btn primary" onclick="addRow()">＋ বিষয় যোগ করুন</button>
+      <button class="btn gold" onclick="printRoutine()">🖨 প্রিন্ট / পিডিএফ</button>
+      <button class="btn ghost" onclick="copyText()">📋 টেক্সট কপি (শেয়ার)</button>
+    </div>
+  </div>
+
+  <div class="today-banner" id="tbanner"></div>
+
+  <div class="card print-area">
+    <div class="print-head">
+      <h1 id="p-title">পরীক্ষার রুটিন</h1>
+    </div>
+    <div class="card-title no-print"><span>🗓️ আপনার রুটিন</span><span style="font-size:12.5px;color:var(--muted);font-weight:400">তারিখ অনুযায়ী সাজানো</span></div>
+    <div id="table-wrap"></div>
+    <div class="print-meta" id="pmeta"></div>
+  </div>
+
+  <footer class="no-print">
+    Day 8 of 100 · Built in public by <a href="https://github.com/iamzahirul" target="_blank" rel="noopener">Rasel (@iamzahirul)</a><br>
+    <span style="opacity:.75">🔒 রুটিন আপনার ব্রাউজারেই সেভ থাকে — কোনো ডাটা কোথাও যায় না</span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   পরীক্ষার রুটিন মেকার
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const STORE = 'exam-routine-v1';
+let rows = [];
+
+const MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const WEEK = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+
+function bn(x) { return String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function parseD(s) { const p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function todayMid() { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); }
+function daysLeft(dateStr) { return Math.round((parseD(dateStr) - todayMid()) / 86400000); }
+function fmtTime(t) {
+  if (!t) return '';
+  const p = t.split(':'); let h = +p[0]; const m = p[1];
+  const ap = h < 12 ? 'সকাল' : h < 16 ? 'দুপুর' : h < 18 ? 'বিকাল' : 'সন্ধ্যা/রাত';
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  return ap + ' ' + bn(h12) + ':' + bn(m);
+}
+function fmtDate(s) {
+  const d = parseD(s);
+  return bn(d.getDate()) + ' ' + MONTHS[d.getMonth()] + ' ' + bn(d.getFullYear()) + ' (' + WEEK[d.getDay()] + ')';
+}
+
+function sorted() {
+  return [...rows].sort((a, b) => (a.date + (a.time || '99')) < (b.date + (b.time || '99')) ? -1 : 1);
+}
+
+/* ---------- সেভ/লোড ---------- */
+function save() {
+  const data = { name: $('rname').value, rows };
+  try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (d && Array.isArray(d.rows)) { $('rname').value = d.name || ''; rows = d.rows; return; }
+  } catch (e) {}
+  addRow();
+}
+
+/* ---------- রো ---------- */
+function addRow(r) {
+  rows.push(r || { subj: '', date: '', time: '', room: '' });
+  renderRows();
+  save();
+}
+function delRow(i) { rows.splice(i, 1); renderRows(); save(); render(); }
+function updRow(i, field, v) { rows[i][field] = v; save(); render(); }
+
+function renderRows() {
+  $('rows').innerHTML = rows.map((r, i) =>
+    '<div class="erow">' +
+    '<div><label class="row-label">বিষয়</label><input type="text" value="' + esc(r.subj) + '" placeholder="যেমন: বাংলা" oninput="updRow(' + i + ',\'subj\',this.value)"></div>' +
+    '<div><label class="row-label">তারিখ</label><input type="date" value="' + esc(r.date) + '" oninput="updRow(' + i + ',\'date\',this.value)"></div>' +
+    '<div><label class="row-label">সময়</label><input type="time" value="' + esc(r.time) + '" oninput="updRow(' + i + ',\'time\',this.value)"></div>' +
+    '<div><label class="row-label">ঘর/কেন্দ্র</label><input type="text" value="' + esc(r.room) + '" placeholder="ঐচ্ছিক" oninput="updRow(' + i + ',\'room\',this.value)"></div>' +
+    '<button class="del" onclick="delRow(' + i + ')" title="মুছুন">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+/* ---------- টেবিল ---------- */
+function render() {
+  const list = sorted().filter(r => r.subj || r.date);
+  $('p-title').textContent = $('rname').value || 'পরীক্ষার রুটিন';
+
+  if (!list.length) {
+    $('table-wrap').innerHTML = '<div class="empty">এখনো কোনো বিষয় যোগ করা হয়নি।<br>উপরে “＋ বিষয় যোগ করুন” চাপুন, অথবা “উদাহরণ দেখুন” দিয়ে শুরু করুন।</div>';
+    $('tbanner').classList.remove('show');
+    $('pmeta').textContent = '';
+    return;
+  }
+
+  /* আজকের ব্যানার */
+  const todayExams = list.filter(r => r.date && daysLeft(r.date) === 0);
+  const tb = $('tbanner');
+  if (todayExams.length) {
+    tb.innerHTML = '📢 <b>আজ পরীক্ষা:</b> ' + todayExams.map(r => '<b>' + esc(r.subj) + '</b>' + (r.time ? ' (' + fmtTime(r.time) + ')' : '')).join(', ') + ' — শুভকামনা! 🍀';
+    tb.classList.add('show');
+  } else tb.classList.remove('show');
+
+  let html = '<table><thead><tr><th>#</th><th>বিষয়</th><th>তারিখ</th><th>সময়</th><th>ঘর/কেন্দ্র</th><th class="no-print">বাকি</th></tr></thead><tbody>';
+  list.forEach((r, i) => {
+    let chip = '', cls = '';
+    if (r.date) {
+      const left = daysLeft(r.date);
+      if (left < 0) { chip = '<span class="chip over">সম্পন্ন</span>'; cls = 'past'; }
+      else if (left === 0) { chip = '<span class="chip today">আজ!</span>'; cls = 't-row'; }
+      else if (left <= 7) chip = '<span class="chip soon">' + bn(left) + ' দিন বাকি</span>';
+      else chip = '<span class="chip soon">' + bn(left) + ' দিন বাকি</span>';
+    }
+    html += '<tr class="' + cls + '"><td>' + bn(i + 1) + '</td><td class="subj">' + esc(r.subj || '—') + '</td>'
+      + '<td>' + (r.date ? fmtDate(r.date) : '—') + '</td>'
+      + '<td>' + (r.time ? fmtTime(r.time) : '—') + '</td>'
+      + '<td>' + esc(r.room || '—') + '</td><td class="no-print">' + chip + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  $('table-wrap').innerHTML = html;
+  $('pmeta').textContent = $('rname').value + ' · মোট ' + bn(list.length) + 'টি পরীক্ষা · তৈরি: ' + bn(new Date().toLocaleDateString('en-GB'));
+}
+
+/* ---------- শেয়ার টেক্সট ---------- */
+function routineText() {
+  const list = sorted().filter(r => r.subj || r.date);
+  if (!list.length) return '';
+  let out = '📋 ' + ($('rname').value || 'পরীক্ষার রুটিন') + '\n' + '─'.repeat(22) + '\n';
+  list.forEach((r, i) => {
+    out += bn(i + 1) + '. ' + (r.subj || '—');
+    if (r.date) out += ' — ' + fmtDate(r.date);
+    if (r.time) out += ', ' + fmtTime(r.time);
+    if (r.room) out += ', ঘর: ' + r.room;
+    out += '\n';
+  });
+  return out;
+}
+
+function copyText() {
+  const text = routineText();
+  if (!text) { toast('আগে কিছু বিষয় যোগ করুন!'); return; }
+  const done = () => toast('✓ কপি হয়েছে — এখন পেস্ট করে শেয়ার করুন!');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => { fallbackCopy(text); done(); });
+  } else { fallbackCopy(text); done(); }
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+}
+
+function printRoutine() {
+  if (!sorted().filter(r => r.subj || r.date).length) { toast('আগে কিছু বিষয় যোগ করুন!'); return; }
+  window.print();
+}
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function clearAll() {
+  if (!rows.length && !$('rname').value) return;
+  if (!confirm('সব মুছে ফেলবেন?')) return;
+  rows = []; $('rname').value = '';
+  addRow();
+  render();
+}
+
+/* ---------- উদাহরণ ---------- */
+function loadExample() {
+  $('rname').value = 'এসএসসি পরীক্ষা ২০২৭';
+  const y = new Date().getFullYear() + 1;
+  rows = [
+    { subj: 'বাংলা', date: y + '-03-01', time: '10:00', room: 'ক-১০১' },
+    { subj: 'ইংরেজি', date: y + '-03-03', time: '10:00', room: 'ক-১০১' },
+    { subj: 'গণিত', date: y + '-03-05', time: '10:00', room: 'খ-২০৪' },
+    { subj: 'বিজ্ঞান', date: y + '-03-08', time: '10:00', room: 'খ-২০৪' },
+    { subj: 'সমাজ', date: y + '-03-10', time: '14:00', room: 'গ-১০৮' },
+  ];
+  renderRows(); save(); render();
+  toast('উদাহরণ লোড হয়েছে — নিজের মতো বদলে নিন!');
+}
+
+/* ---------- init ---------- */
+load();
+renderRows();
+render();
+</script>
+</body>
+</html>
